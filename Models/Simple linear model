@@ -1,0 +1,43 @@
+#smaller cor tables
+index <- sapply(train, function(x) is.numeric(x))
+temp <- (train[ ,index])
+
+tr.cor <- cor(temp[, 3:10])
+tr.cor
+tr.cor <- cor(temp[, c(4,11:15)])
+tr.cor
+tr.cor <- cor(temp[, c(4,16:21)])
+tr.cor
+tr.cor <- cor(temp[, c(4,22:27)])
+
+
+
+#######################################################################################
+# Simple linear model
+
+# the model is made with train.tr
+#instal the car library to run vif()
+#######################################################################################
+plot(train.tr$totalActualVal, main="Total Actual Value of Homes")
+
+simLM <- lm(totalActualVal ~ mainfloorSF + nbrFullBaths + landUnitValue + carStorageSF + nbrBedRoom, data = train.tr)
+plot(simLM)
+# The residuals aren't compleatly normal
+# no influential leverage points
+# qqplot shows that it is close to normal, but it gets far from normal at end
+# it looks like we might need a transformation
+
+simLM$coef
+summary(simLM)
+library(car)
+vif(simLM)
+# all the variables in this model are all significant
+# the r^2 is 44%, not very high
+# the vif tells us that these variables aren't highly correlated with eachother. (5 or lower is recommended)
+
+pairs(~ totalActualVal + mainfloorSF + nbrFullBaths + landUnitValue + carStorageSF + nbrBedRoom, data = train.tr, 
+      main="Simple Scatterplot Matrix")
+#here we see that most of these have a linear pattern with the actual value except land unit value
+# that variable is kinda clumped up
+
+mean((predict(object=simLM,newdata=train.te) - train.te$totalActualVal)^2)
